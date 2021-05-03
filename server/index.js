@@ -2,12 +2,11 @@ const ip=require('./input')
 const express = require("express");
 const PORT =  5000;
 const app = express();
-const fileFolderArray=[]
 const fileFolderBinaryArray=[]
 const allFilesAndFolders=[]
 const dataValue=[]
 const finalArray=[]
-const currentDirectory=[]
+
 var tempstring=''
 var recursiveTest = (obj)=>{  
   let tempArray=[]
@@ -54,25 +53,47 @@ app.get("/path", (req, res) => {
 app.get("/path/dre",(req,res)=>{
   allFilesAndFolders.push('root')
   let varTemp=req.query.url
+  let temp=''
+  var i=0
+  var dict={}
   recursiveTest(ip)
+  console.log(dataValue)
   allFilesAndFolders.forEach((value,index)=>{
     if(!fileFolderBinaryArray[index]){
-      currentDirectory.push(value)
-    }
-  })
-   for(var i=0;i<currentDirectory.length;i++){
-     tempstring=tempstring+'/'+currentDirectory[i]
-     var dict={
-       name:currentDirectory[i],
+      
+      tempstring=tempstring+'/'+value
+      dict={
+       name:value,
        data:dataValue[i],
+       type:false,
        path:tempstring 
      }
      finalArray.push(dict)
-   }
-  
+     i++
+    }
+    else{
+      temp=''
+     temp=tempstring+'/'+value
+     dict={
+      name:value,
+      data:null,
+      path:temp,
+      type:true
+     }
+     finalArray.push(dict)
+    }
+  })
+  console.log(finalArray)
   for(var i=0;i<finalArray.length;i++){
     if(finalArray[i].path === varTemp){
-      res.json({message:finalArray[i].data})
+      
+      if(!finalArray[i].type){
+        console.log(finalArray[i].data)
+       res.json({message:finalArray[i].data})
+      }else{
+        let arr=[`This is a file ${finalArray[i].name}`]
+        res.json({message:arr})
+      }
     }
   }
 })
