@@ -1,22 +1,22 @@
 
 import {useState,useEffect} from 'react'
-import 'bootswatch/dist/superhero/bootstrap.min.css';
 import {BrowserRouter as Router,Switch,Route,Link} from "react-router-dom";
 import DetailsPage from './components/DetailsPage'
 import DetailsFile from './components/DetailsFile'
 import Home from './components/Home'
 
+
 function App() {
   const [dataInput, setDataInput] = useState(null);
   const [serverInput,setServerInput]=useState('')
   const [serverOutput,setServerOutput]=useState(['Response from server appears here ....'])
+  const [dta,setDta]=useState(0)
   const dataValue=[] 
   const allFilesAndFolders=[]
   const fileFolderBinaryArray=[]
   const finalArray=[]
   const filesonlyArray=[]
   const folderonlyArray=[]
-  
   var tempstring='/path'
   var id=0;
 
@@ -76,12 +76,20 @@ function App() {
   var temp=''
   var dict={}
   var i=0;
+  const test=[]
   recursiveTest(dataInput) //To Parse through the json input
- 
+  const breadString=[]
+  const breadPathString=[]
+  const pat=[]
+  const inc=[]
   allFilesAndFolders.forEach((value,index)=>{
    if(!fileFolderBinaryArray[index]){
+  
+    breadString.push(value.fname)
+    //console.log(breadString)
     
     tempstring=tempstring+'/'+value.fname
+    breadPathString.push(tempstring)
     dict={
       name:value.fname,
       id:value.fid,
@@ -90,17 +98,28 @@ function App() {
         type:fileFolderBinaryArray[index]
       },
       path:tempstring,
-      vis:true
-     
+      vis:true,
+      breadPath:{
+        breadData:[...breadString],
+        realPath:[...breadPathString]
+      }
     }
     finalArray.push(dict)
     folderonlyArray.push(dict)
     i++
-
+    inc.push(index)
+    pat.push(fileFolderBinaryArray[index])
+    test.push({nm:dict.name,dat:dict.breadPath.breadData,pat:dict.breadPath.realPath,tpe:[...pat],inc:[...inc]})
    }
    else{
+     let tempArray=[...breadString];
+     let tempInc=[...inc]
+     tempInc.push(index)
+     tempArray.push(value.fname)
+     //console.log(tempArray)
      temp=''
      temp=tempstring+'/'+value.fname
+     breadPathString.push(temp)
      dict={
       name:value.fname,
       id:value.fid,
@@ -109,20 +128,27 @@ function App() {
         type:fileFolderBinaryArray[index]
       },
       path:temp,
-      vis:false
-     
+      vis:false,
+      breadPath:{
+        breadData:[...tempArray],
+        realPath:[...breadPathString]
+      }
       
     }
     filesonlyArray.push(dict)
     finalArray.push(dict)
+    breadPathString.pop()
+    tempArray.length=0;
 
-
+    pat.push(fileFolderBinaryArray[index])
+    test.push({nm:dict.name,dat:dict.breadPath.breadData,pat:dict.breadPath.realPath,tpe:[...pat],inc:[...tempInc]})
+    tempInc.length=0;
    }
-   
+   if(fileFolderBinaryArray[index]){
+     pat.pop()
+   }
  })
- 
-
-
+//console.log(finalArray.length)
   const handleSubmit=(e)=>{
     e.preventDefault()
     var getServerData =async()=>{
@@ -137,23 +163,37 @@ function App() {
     }
     getServerData()
   }
- 
+function childSend(i){
+  setDta(i)
+}
+
+ var ty=0
+ test.forEach(e=>console.log(e.inc + '' +e.nm))
   return (
   <Router>
   <Switch>
     <div> 
+
        {/* Breadcrumb to display the folders */}
-       <ol className="breadcrumb">
        {
-       finalArray.map((value,index)=>{
-         return(<div key={index}>  
-                {!value.data.type && 
-                <Link to={value.path}> <button className="breadcrumb-item" style={{color:'black'}}  > <h1 style={{color:'black'}}>{value.name + '/'}</h1></button></Link>
-       }</div>)})
-                     
-             
-       }
-      </ol>
+                    <div>
+                        <ol className="breadcrumb">
+                        {
+                          test[dta].dat.map((v,i)=>{
+                           
+                            return(!test[dta].tpe[i]?
+                              <Link onClick={()=>setDta(test[dta].inc[i])} to={test[dta].pat[i]}> <button className="breadcrumb-item" style={{color:'black'}}  > <h1 style={{color:'black'}}>{v+ '/'}</h1></button></Link>:
+                              <Link onClick={()=>window.alert("This is a File and you are viewing its content, choose a folder to see others")} to={test[dta].pat[i]}> <button className="breadcrumb-item" style={{color:'black'}}  > <h1 style={{color:'black'}}>{v}</h1></button></Link>
+                              
+                            )
+                          })}
+                         
+                        </ol>
+                          
+                      </div>
+
+                  }
+
       {/* All The Routes are being setup here*/}
       <div className="jumbotron">
       {
@@ -162,7 +202,7 @@ function App() {
           return(<div key={index}>
               
                   
-            { !value.data.type?<Route exact path={value.path}  render={(props) => <DetailsPage value={value.name} finalArray={finalArray} path={value.path} arrayData={value.data.value} {...props} /> }></Route>: <Route exact path={value.path}  render={(props) => <DetailsFile path={value.path} value={value.name} {...props} /> }></Route>}
+            { !value.data.type?<Route exact path={value.path}  render={(props) => <DetailsPage value={value.name} dt={{dta,childSend}} finalArray={finalArray} path={value.path}  index={index} arrayData={value.data.value} {...props} /> }></Route>: <Route exact path={value.path}  render={(props) => <DetailsFile path={value.path} value={value.name} index={index} dt={{dta,childSend}} {...props} /> }></Route>}
                   
           </div>)
         })
