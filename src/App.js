@@ -19,6 +19,14 @@ function App() {
   const folderonlyArray=[]
   var tempstring='/path'
   var id=0;
+  var temp=''
+  var dict={}
+  var i=0;
+  const test=[]
+  const breadString=[]
+  const breadPathString=[]
+  const pat=[]
+  const inc=[]
 
   useEffect(() => {
    var getData=async()=>{
@@ -73,21 +81,10 @@ function App() {
   }
  
   allFilesAndFolders.push({fname:'root',fid:id})
-  var temp=''
-  var dict={}
-  var i=0;
-  const test=[]
   recursiveTest(dataInput) //To Parse through the json input
-  const breadString=[]
-  const breadPathString=[]
-  const pat=[]
-  const inc=[]
   allFilesAndFolders.forEach((value,index)=>{
    if(!fileFolderBinaryArray[index]){
-  
-    breadString.push(value.fname)
-    //console.log(breadString)
-    
+    breadString.push(value.fname) 
     tempstring=tempstring+'/'+value.fname
     breadPathString.push(tempstring)
     dict={
@@ -116,7 +113,6 @@ function App() {
      let tempInc=[...inc]
      tempInc.push(index)
      tempArray.push(value.fname)
-     //console.log(tempArray)
      temp=''
      temp=tempstring+'/'+value.fname
      breadPathString.push(temp)
@@ -148,7 +144,6 @@ function App() {
      pat.pop()
    }
  })
-//console.log(finalArray.length)
   const handleSubmit=(e)=>{
     e.preventDefault()
     var getServerData =async()=>{
@@ -167,7 +162,7 @@ function childSend(i){
   setDta(i)
 }
 
- var ty=0
+
  test.forEach(e=>console.log(e.inc + '' +e.nm))
   return (
   <Router>
