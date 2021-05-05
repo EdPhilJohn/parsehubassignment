@@ -55,6 +55,7 @@ app.get("/path/dre",(req,res)=>{
   let varTemp=req.query.url
   let temp=''
   var i=0
+  var j=0
   var dict={}
   recursiveTest(ip)
   console.log(dataValue)
@@ -90,12 +91,15 @@ app.get("/path/dre",(req,res)=>{
       if(!finalArray[i].type){
         console.log(finalArray[i].data)
        res.json({message:finalArray[i].data})
+       j++
       }else{
         let arr=[`This is a file ${finalArray[i].name}`]
         res.json({message:arr})
+        j++
       }
     }
   }
+  if(j===0){res.json({message:["wrong entry, try again"]})}
 })
 
 //server at localhost:5000
